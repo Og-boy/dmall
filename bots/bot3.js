@@ -1,28 +1,40 @@
-const { Client } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 const fs = require('fs');
 
-module.exports = function(token) {
-    const client = new Client();
+module.exports = function(token, config) { 
+    const client = new Client({
+        intents: [
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMembers,
+            GatewayIntentBits.MessageContent, 
+        ]
+    });
 
-    const bot3Members = JSON.parse(fs.readFileSync('./json/bot3.json', 'utf-8'));
-    const config = JSON.parse(fs.readFileSync('./config.json', 'utf-8'));
+    const botMembers = JSON.parse(fs.readFileSync(`./json/bot3.json`, 'utf-8'));
     const botMessage = config.botMessage;
+    const cooldown = config.cooldown;
 
     client.once('ready', async () => {
         console.log('Bot3 prêt à envoyer des messages');
+        let index = 0;
 
-        for (let memberId of bot3Members) {
-            try {
-                const member = await client.users.fetch(memberId);
-                await member.send(botMessage);
-                console.log(`Message envoyé à ${member.tag}`);
-            } catch (error) {
-                console.error(`Erreur avec ${memberId}:`, error);
+        const interval = setInterval(async () => {
+            if (index < botMembers.length) {
+                const memberId = botMembers[index];
+                try {
+                    const member = await client.users.fetch(memberId);  
+                    await member.send(botMessage);
+                    console.log(`Message envoyé à ${member.tag}`);
+                } catch (error) {
+                    console.log(`Échec de l'envoi du message à ${memberId}`);
+                }
+                index++;
+            } else {
+                clearInterval(interval);
+                console.log('Bot3 a terminé d\'envoyer tous les messages.');
+                client.destroy();
             }
-        }
-
-        console.log('Bot3 a terminé d\'envoyer tous les messages.');
-        client.destroy();
+        }, cooldown);
     });
 
     client.login(token);
