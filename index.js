@@ -16,10 +16,10 @@ const botTokens = {
     bot10: '',
 };
 
-const guildId = '1339708198726139905';
+const guildId = '';
 const cooldown = 6000;
-const excludeIds = ['123456789012345678', '987654321098765432'];
-const botMessageTemplate = `https://discord.gg/tada rejoins vite tu me manque`;
+const excludeIds = [];
+const botMessageTemplate = ``;
 const color = "#303434";
 const jsonPath = path.join(__dirname, 'json');
 
